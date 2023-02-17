@@ -10,12 +10,13 @@ contract MockBonsaiProxy is IBonsaiProxy {
     function submit_request(
         bytes32 image_id,
         bytes calldata input,
-        function(bytes32, bytes memory) external callback_function
+        address callback_address,
+        bytes4 callback_selector
     ) external {
         emit SubmitRequest(image_id, input, callback_function);
     }
 
-    function send_callback(function(bytes32, bytes memory) external callback_function, bytes32 image_id, bytes memory journal) external {
+    function send_callback(address callback_address, bytes4 callback_selector, bytes32 image_id, bytes memory journal) external {
         callback_function(image_id, journal);
     }
 }

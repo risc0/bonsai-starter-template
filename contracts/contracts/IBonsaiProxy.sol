@@ -9,6 +9,7 @@ interface IBonsaiProxy {
     function submit_request(
         bytes32 image_id,
         bytes calldata input,
-        function(bytes32, bytes memory) external callback_function
+        address callback_address,
+        bytes4 callback_selector
     ) external;
 }

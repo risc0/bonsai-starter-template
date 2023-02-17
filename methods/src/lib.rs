@@ -18,7 +18,7 @@ include!(concat!(env!("OUT_DIR"), "/methods.rs"));
 mod tests {
     use std::error::Error;
 
-    use ethabi::Uint;
+    use ethabi::ethereum_types::U256;
     use risc0_zkvm::{serde, Prover, ProverOpts};
 
     use super::{FIBONACCI_ID, FIBONACCI_PATH};
@@ -34,9 +34,10 @@ mod tests {
 
         prover.add_input_u32_slice(&serde::to_vec(&Uint::from(10))?);
 
+        // TODO(victor): Commit and check both n and result for fib.
         let receipt = prover.run()?;
-        let result: Uint = serde::from_slice(&receipt.journal)?;
-        assert_eq!(result, Uint::from(89));
+        let result: U256 = serde::from_slice(&receipt.journal)?;
+        assert_eq!(result, U256::from(89));
         Ok(())
     }
 }

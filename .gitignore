@@ -1,0 +1,13 @@
+Cargo.lock
+**/*.rs.bk
+.DS_Store
+*~
+*.swp
+*.swo
+.idea
+.vscode
+target/
+tmp/
+node_modules/
+contracts/artifacts
+contracts/cache

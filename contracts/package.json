@@ -1,0 +1,11 @@
+{
+  "devDependencies": {
+    "prettier": "^2.8.4",
+    "prettier-plugin-solidity": "^1.1.2",
+    "solhint": "^3.3.8",
+    "solhint-plugin-prettier": "^0.0.5"
+  },
+  "dependencies": {
+    "hardhat": "^2.12.7"
+  }
+}

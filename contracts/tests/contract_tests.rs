@@ -1,17 +1,20 @@
 // Copyright 2023 RISC Zero, Inc.
 // SPDX-License-Identifier: UNLICENSED
 
+//! Tests for the HelloBonsai contract using a mock for the Bonsai proxy contract.
+//! TODO(victor) Fill in this file.
+
+use std::error::Error;
 use std::sync::Arc;
 use std::time::Duration;
 
 use ethers::core::k256::ecdsa::SigningKey;
 use ethers::prelude::*;
-use ethers::abi::ethereum_types::Secret;
+use ethers::abi::Tokenizable;
 use ethers::utils::{Ganache, GanacheInstance};
-use crate::HelloBonsai;
+use hello_bonsai_contracts::HelloBonsai;
 
-//! Tests for the HelloBonsai contract using a mock for the Bonsai proxy contract.
-//! TODO(victor) Fill in this file.
+abigen!(MockBonsaiProxy, "artifacts/MockBonsaiProxy.sol/MockBonsaiProxy.json");
 
 pub fn get_ganache_client() -> (
     GanacheInstance,
@@ -37,120 +40,35 @@ pub fn get_ganache_client() -> (
     (ganache, client)
 }
 
+const MOCK_IMAGE_ID: [u8; 32] = [8u8; 32];
+
 #[tokio::test]
-pub async fn test_happy_path() {
+pub async fn test_happy_path() -> Result<(), Box<dyn Error>> {
     // Instantiate client as wallet on network
     let (_ganache, client) = get_ganache_client();
-    let wallet_address = client.address();
+    let _wallet_address = client.address();
 
-    /* Deploy dummies
-    let dummy_erc20 = ERC20Dummy::deploy(client.clone(), ())
-        .unwrap()
+    // Deploy the MockBonsaiProxy
+    let mock_bonsai_proxy = MockBonsaiProxy::deploy(client.clone(), ())?
         .send()
-        .await
-        .unwrap();
-    */
+        .await?;
 
     // Deploy the HelloBonsai contract.
-    let clob_contract = HelloBonsai::deploy(
+    let hello_bonsai = HelloBonsai::deploy(
         client.clone(),
-        (dummy_bpn.address(), dummy_erc20.address(), Secret::zero()),
-    )
-    .expect("Failed to create CLOB deployment tx")
+        (mock_bonsai_proxy.address(), MOCK_IMAGE_ID),
+    )?
     .send()
-    .await
-    .expect("Failed to send CLOB deployment tx");
-    assert_eq!(
-        client
-            .get_balance(clob_contract.address(), None)
-            .await
-            .unwrap(),
-        U256::zero()
-    );
+    .await?;
 
-    let trade_orders = vec![
-        TradeOrder {
-            owner_id: wallet_address.into(),
-            order_type: OrderType::BUY,
-            limit_price: 20,
-            amount: 150,
-            matched_in: 0,
-            matched_out: 0,
-        },
-        TradeOrder {
-            owner_id: wallet_address.into(),
-            order_type: OrderType::SELL,
-            limit_price: 20,
-            amount: 120,
-            matched_in: 0,
-            matched_out: 0,
-        },
-    ];
+    let mut callback_function_pointer = [0u8; 24];
+    callback_function_pointer[..4].copy_from_slice(&hello_bonsai.abi().function("calculate_fibonacci_callback")?.short_signature());
+    callback_function_pointer[4..].copy_from_slice(hello_bonsai.address().as_bytes());
 
-    // Send a BUY order for 150 ERC at 20 WEI each (costs 3000 WEI)
-    submit_trade_order(&clob_contract, &trade_orders[0])
-        .send()
-        .await
-        .expect("Failed to send CLOB BUY tx");
-    assert_eq!(
-        client
-            .get_balance(clob_contract.address(), None)
-            .await
-            .unwrap(),
-        U256::from(3000u32)
-    );
+    mock_bonsai_proxy.send_callback(callback_function_pointer[0], MOCK_IMAGE_ID, ethers::abi::encode(&[U256::from(10).into_token(), U256::from(89).into_token()]).into()).send().await?;
 
-    // Send a SELL order for 120 ERC at 20 WEI each (costs 120 ERC)
-    submit_trade_order(&clob_contract, &trade_orders[1])
-        .send()
-        .await
-        .expect("Failed to send CLOB SELL tx");
-    assert_eq!(
-        client
-            .get_balance(clob_contract.address(), None)
-            .await
-            .unwrap(),
-        U256::from(3000u32)
-    );
+    let result: U256 = hello_bonsai.fibonacci(U256::from(10)).call().await?;
 
-    // Read events for orders
-    let logged_orders = read_order_logs(&clob_contract, 0).await;
-    assert_eq!(logged_orders, trade_orders,);
-
-    // Create settlements
-    let validation = MatchingValidationInput {
-        range: Default::default(),
-        orders: trade_orders,
-        accumulator: Default::default(),
-    };
-    let journal = validation.validate(&HashMapKeyValueStore::new()).unwrap();
-
-    // Settle
-    submit_settlements(
-        &clob_contract,
-        2,
-        &journal.settlements,
-        journal.final_state.0,
-        vec![],
-    )
-    .send()
-    .await
-    .expect("Failed to send CLOB settlement tx");
-    // Check balance
-    assert_eq!(
-        client
-            .get_balance(clob_contract.address(), None)
-            .await
-            .unwrap(),
-        U256::from(600u32)
-    );
-    // Check state
-    assert_eq!(
-        clob_contract.accumulator().call().await.unwrap(),
-        journal.accumulator.0
-    );
-    assert_eq!(
-        clob_contract.last_processed().call().await.unwrap(),
-        clob_contract.last_submitted().call().await.unwrap()
-    );
+    assert_eq!(result, U256::from(89));
+    Ok(())
 }

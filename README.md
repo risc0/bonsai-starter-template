@@ -4,8 +4,6 @@ Starter template for writing an application using Bonsai
 
 ## Getting Started
 
-* Install `solc`
-    * Note that you need the `solc` binary and not solcjs.
 
 <!--
 TODO(victor) 

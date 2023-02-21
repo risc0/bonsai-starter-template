@@ -36,7 +36,7 @@ contract HelloBonsai {
     ///      trigger the Bonsai network to run the specified RISC Zero guest image with the given
     ///      input and asynchonrously return the verified results to use via the callback below.
     function calculate_fibonacci(uint256 n) external {
-        bonsai_proxy.submit_request(image_id, abi.encode(n), this, this.calculate_fibonacci_callback.selector);
+        bonsai_proxy.submit_request(image_id, abi.encode(n), address(this), this.calculate_fibonacci_callback.selector);
     }
 
     /// @notice Callback function to be called by the Bonsai proxy when the result is ready.
@@ -46,9 +46,7 @@ contract HelloBonsai {
     ) external {
         require(msg.sender == address(bonsai_proxy));
         require(_image_id == image_id);
-        uint256 n;
-        uint256 result;
-        (n, result) = abi.decode(journal, (uint256, uint256));
+        (uint256 n, uint256 result) = abi.decode(journal, (uint256, uint256));
         fibonnaci_cache[n] = result;
     }
 }

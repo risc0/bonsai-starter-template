@@ -13,16 +13,18 @@ fn main() {
         .unwrap();
     let output = project.compile().unwrap();
 
-    if output.has_compiler_errors() {
+    if output.has_compiler_errors() || output.has_compiler_warnings() {
         // HACK: Bypass the parent cargo output capture and send directly to the tty, if available.
         // This allows solc to forward errors and warnings to the user.
         let mut tty = fs::OpenOptions::new().write(true).open("/dev/tty").ok();
 
         if let Some(tty) = &mut tty {
-            for error in output.output().errors.iter() {
+            for error in output.clone().output().errors.iter() {
                 write!(tty, "{}", error).unwrap();
             }
-            panic!("Failed to build Solidity contracts");
+            if output.has_compiler_errors() {
+                panic!("Failed to build Solidity contracts");
+            }
         } else {
             panic!("{:?}", output.output().errors);
         }

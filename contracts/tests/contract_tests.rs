@@ -61,12 +61,12 @@ pub async fn test_happy_path() -> Result<(), Box<dyn Error>> {
     .send()
     .await?;
 
-    let mut callback_function_pointer = [0u8; 24];
-    callback_function_pointer[..4].copy_from_slice(&hello_bonsai.abi().function("calculate_fibonacci_callback")?.short_signature());
-    callback_function_pointer[4..].copy_from_slice(hello_bonsai.address().as_bytes());
+    // Send a callback to HelloBonsai through the Bonsai proxy contract.
+    let callback_selector = hello_bonsai.abi().function("calculate_fibonacci_callback")?.short_signature();
+    let journal = ethers::abi::encode(&[U256::from(10).into_token(), U256::from(89).into_token()]);
+    mock_bonsai_proxy.send_callback(hello_bonsai.address(), callback_selector, MOCK_IMAGE_ID, journal.into()).send().await?;
 
-    mock_bonsai_proxy.send_callback(callback_function_pointer[0], MOCK_IMAGE_ID, ethers::abi::encode(&[U256::from(10).into_token(), U256::from(89).into_token()]).into()).send().await?;
-
+    // Check that the journal is used to produce the expected state change.
     let result: U256 = hello_bonsai.fibonacci(U256::from(10)).call().await?;
 
     assert_eq!(result, U256::from(89));

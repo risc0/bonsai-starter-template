@@ -68,12 +68,24 @@ cargo test
 
 ### Contracts
 
+Ethereum contracts are in the `contracts` directory.
+Solidity can be found in `contracts/contracts` including the application source and an interface and mock implementation of the Bonsai proxy.
+Contracts are built using Rust [ethers], and the build configuration is in `contracts/build.rs`.
+Tests are written in Rust using the ethers utilities to run a Ganache server, and to deploy and test the application contracts.
+Tests are defined in `contracts/tests`.
+
 ### Methods
+
+RISC Zero guest programs are defined in the `methods` directory.
 
 ### CLI
 
+A starter CLI is provided to help deploy contracts to Ethereum and RISC Zero guest programs to Bonsai.
+Additionally the CLI includes example commands to interact with the smart contract via ethers.
+
 [Bonsai]: https://example.com
 [RISC Zero]: https://www.risczero.com/
+[ethers]: https://docs.rs/ethers/latest/ethers/
 <!--
 TODO
 * Use links to public Bonsai materials.

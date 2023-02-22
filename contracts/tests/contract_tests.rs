@@ -4,22 +4,24 @@
 //! Tests for the HelloBonsai contract using a mock for the Bonsai proxy contract.
 //! TODO(victor) Fill in this file.
 
+use std::ops::Deref;
 use std::error::Error;
 use std::sync::Arc;
-use std::time::Duration;
 
 use ethers::core::k256::ecdsa::SigningKey;
 use ethers::prelude::*;
-use ethers::abi::Tokenizable;
 use ethers::utils::{Ganache, GanacheInstance};
 use hello_bonsai_contracts::HelloBonsai;
+use risc0_zkvm::{serde, Prover, ProverOpts, sha::Digest};
+use hello_bonsai_methods::{FIBONACCI_ID, FIBONACCI_PATH};
+
 
 abigen!(MockBonsaiProxy, "artifacts/MockBonsaiProxy.sol/MockBonsaiProxy.json");
 
-pub fn get_ganache_client() -> (
+pub async fn get_ganache_client() -> Result<(
     GanacheInstance,
-    Arc<SignerMiddleware<Provider<Http>, Wallet<SigningKey>>>,
-) {
+    Arc<SignerMiddleware<Provider<Ws>, Wallet<SigningKey>>>,
+), Box<dyn Error>> {
     // Launch ganache instance
     let ganache = Ganache::new().spawn();
 
@@ -27,9 +29,7 @@ pub fn get_ganache_client() -> (
     let wallet: LocalWallet = ganache.keys()[0].clone().into();
 
     // Connect to network
-    let provider = Provider::<Http>::try_from(ganache.endpoint())
-        .unwrap()
-        .interval(Duration::from_millis(10u64));
+    let provider = Provider::<Ws>::connect(ganache.ws_endpoint()).await?;
 
     // Instantiate client as wallet on network
     let client = Arc::new(SignerMiddleware::new(
@@ -37,16 +37,17 @@ pub fn get_ganache_client() -> (
         wallet.with_chain_id(1337u64),
     ));
 
-    (ganache, client)
+    Ok((ganache, client))
 }
-
-const MOCK_IMAGE_ID: [u8; 32] = [8u8; 32];
 
 #[tokio::test]
 pub async fn test_happy_path() -> Result<(), Box<dyn Error>> {
     // Instantiate client as wallet on network
-    let (_ganache, client) = get_ganache_client();
+    let (_ganache, client) = get_ganache_client().await?;
     let _wallet_address = client.address();
+
+    // TODO(victor): This is uglier than it needs to be because the image ID is encoded as [u32; 8]
+    let image_id: [u8; 32] = Digest::from(FIBONACCI_ID).into();
 
     // Deploy the MockBonsaiProxy
     let mock_bonsai_proxy = MockBonsaiProxy::deploy(client.clone(), ())?
@@ -56,15 +57,29 @@ pub async fn test_happy_path() -> Result<(), Box<dyn Error>> {
     // Deploy the HelloBonsai contract.
     let hello_bonsai = HelloBonsai::deploy(
         client.clone(),
-        (mock_bonsai_proxy.address(), MOCK_IMAGE_ID),
+        (mock_bonsai_proxy.address(), image_id),
     )?
     .send()
     .await?;
 
+    let events = mock_bonsai_proxy.events();
+    let mut subscription = events.subscribe().await?;
+
+    hello_bonsai.calculate_fibonacci(U256::from(10)).send().await?;
+
+    let submit_request_log = subscription.next().await.unwrap()?;
+
+    let mut prover = Prover::new_with_opts(
+        &std::fs::read(FIBONACCI_PATH)?,
+        FIBONACCI_ID,
+        ProverOpts::default().with_skip_seal(true),
+    )?;
+    prover.add_input_u32_slice(&serde::to_vec(submit_request_log.input.deref())?);
+    let receipt = prover.run()?;
+
     // Send a callback to HelloBonsai through the Bonsai proxy contract.
     let callback_selector = hello_bonsai.abi().function("calculate_fibonacci_callback")?.short_signature();
-    let journal = ethers::abi::encode(&[U256::from(10).into_token(), U256::from(89).into_token()]);
-    mock_bonsai_proxy.send_callback(hello_bonsai.address(), callback_selector, MOCK_IMAGE_ID, journal.into()).send().await?;
+    mock_bonsai_proxy.send_callback(hello_bonsai.address(), callback_selector, image_id, receipt.journal.into()).send().await?;
 
     // Check that the journal is used to produce the expected state change.
     let result: U256 = hello_bonsai.fibonacci(U256::from(10)).call().await?;

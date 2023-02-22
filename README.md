@@ -16,4 +16,5 @@ TODO
     * Deploy the contract to Ethereum and ELF to Bonsai.
     * Poke the HelloBonsai contract to prove its working.
 * Ensure that any NPM dependencies (e.g. ganache) are managed in a sane way.
+* Add solhint configurations.
 -->

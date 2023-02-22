@@ -5,7 +5,7 @@ pragma solidity ^0.8.17;
 import "../IBonsaiProxy.sol";
 
 contract MockBonsaiProxy is IBonsaiProxy {
-    event SubmitRequest(bytes32 image_id, bytes input, address callback_address, bytes4 callback_selector);
+    event SubmitRequest(bytes32 indexed image_id, bytes input, address callback_address, bytes4 callback_selector);
 
     function submit_request(
         bytes32 image_id,
@@ -17,7 +17,7 @@ contract MockBonsaiProxy is IBonsaiProxy {
     }
 
     function send_callback(address callback_address, bytes4 callback_selector, bytes32 image_id, bytes calldata journal) external {
-        (bool success, bytes memory _data) = callback_address.call(abi.encodeWithSelector(callback_selector, image_id, journal));
+        (bool success,) = callback_address.call(abi.encodeWithSelector(callback_selector, image_id, journal));
         require(success, "Bonsai callback reverted");
     }
 }

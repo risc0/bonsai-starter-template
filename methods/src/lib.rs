@@ -19,6 +19,7 @@ mod tests {
     use std::error::Error;
 
     use ethabi::ethereum_types::U256;
+    use ethabi::Token;
     use risc0_zkvm::{serde, Prover, ProverOpts};
 
     use super::{FIBONACCI_ID, FIBONACCI_PATH};
@@ -32,12 +33,15 @@ mod tests {
             ProverOpts::default().with_skip_seal(true),
         )?;
 
-        prover.add_input_u32_slice(&serde::to_vec(&Uint::from(10))?);
+        prover.add_input_u32_slice(&serde::to_vec(&ethabi::encode(&[Token::Uint(
+            U256::from(10),
+        )]))?);
 
-        // TODO(victor): Commit and check both n and result for fib.
         let receipt = prover.run()?;
-        let result: U256 = serde::from_slice(&receipt.journal)?;
-        assert_eq!(result, U256::from(89));
+        assert_eq!(
+            &receipt.journal,
+            &ethabi::encode(&[Token::Uint(U256::from(10)), Token::Uint(U256::from(89))])
+        );
         Ok(())
     }
 }

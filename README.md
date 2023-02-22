@@ -78,6 +78,7 @@ cargo test
 
 Ethereum contracts are in the `contracts` directory.
 Solidity can be found in `contracts/contracts` including the application source and an interface and mock implementation of the Bonsai proxy.
+Rust functions to interact with your application are included in `contracts/src/lib.rs`.
 
 Contracts are built and tested with [Cargo] with the Rust [ethers] libraries.
 The build configuration is in `contracts/build.rs`.
@@ -87,22 +88,35 @@ Tests are defined in `contracts/tests`.
 ### Methods
 
 [RISC Zero] guest programs are defined in the `methods` directory.
+This is where you will define one or more guest programs to act as a coprocessor to your on-chain logic.
+More example of what you can do in the guest can be found in the [RISC Zero examples].
+
+Code in the `methods/guest` directory will be compiled into one or more [RISC-V] binaries.
+Each will have a corresponding image ID, which is a hash identifying the program.
+When deploying your application, you will upload your binary to Bonsai where the guest will run when requested.
+The image ID will be included in the deployment of the smart contracts to reference your guest program living in Bonsai.
+
+Build configuration for the methods is included in `methods/build.rs` and tests of the guest itself are in `methods/src/lib.rs`.
 
 ### CLI
 
 A starter CLI is provided to help deploy contracts to Ethereum and RISC Zero guest programs to Bonsai.
 Additionally the CLI includes example commands to interact with the smart contract via ethers.
 
+CLI commands are defined in their respective files in `cli/src/bin`.
+
 [Bonsai]: https://example.com
 [RISC Zero]: https://www.risczero.com/
 [ethers]: https://docs.rs/ethers/latest/ethers/
 [Cargo]: https://doc.rust-lang.org/cargo/
+[RISC Zero examples]: https://github.com/risc0/risc0/tree/main/examples
+[RISC-V]: https://www.risczero.com/docs/reference-docs/about-risc-v
+
 <!--
 TODO
 * Use links to public Bonsai materials.
 * Ensure Docker images gets open-sourced.
 * Include a docker-compose.yml file to run Bonsai local.
-* Finish a set of contract functional tests that integrate with the guest and a Mock proxy.
 * Get the Bonsai contracts open-sourced and import IBonsaiProxy from them.
 * Folks need to install ganache via `npm install -g ganache` to run tests.
 * Build a cli that can:
@@ -110,4 +124,6 @@ TODO
     * Poke the HelloBonsai contract to prove its working.
 * Ensure that any NPM dependencies (e.g. ganache) are managed in a sane way.
 * Add solhint configurations.
+* Add example tests for non-happy-path runs.
+* Separate out application test and mock code from contract tests.
 -->

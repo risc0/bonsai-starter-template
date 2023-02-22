@@ -14,6 +14,14 @@ Start building your application by forking this template.
 * Rust and Cargo: https://rustup.rs
 * Ganache: https://www.npmjs.com/package/ganache#command-line-use
 
+### Write Your App
+
+Get started writing your application by modifying these key files:
+* Replace `contracts/contracts/HelloBonsai.sol` with your on-chain application logic.
+* Replace `methods/guest/src/bin/fibonacci.rs` with your Bonsai coprocessor logic.
+
+Associated build configuration files and tests are discussed along with the [project structure](#project-structure) below.
+
 ### Build
 
 Running the following will build the project, including Ethereum contracts and RISC Zero guest program.
@@ -70,13 +78,15 @@ cargo test
 
 Ethereum contracts are in the `contracts` directory.
 Solidity can be found in `contracts/contracts` including the application source and an interface and mock implementation of the Bonsai proxy.
-Contracts are built using Rust [ethers], and the build configuration is in `contracts/build.rs`.
-Tests are written in Rust using the ethers utilities to run a Ganache server, and to deploy and test the application contracts.
+
+Contracts are built and tested with [Cargo] with the Rust [ethers] libraries.
+The build configuration is in `contracts/build.rs`.
+Tests are written in Rust and run against Ganache.
 Tests are defined in `contracts/tests`.
 
 ### Methods
 
-RISC Zero guest programs are defined in the `methods` directory.
+[RISC Zero] guest programs are defined in the `methods` directory.
 
 ### CLI
 
@@ -86,6 +96,7 @@ Additionally the CLI includes example commands to interact with the smart contra
 [Bonsai]: https://example.com
 [RISC Zero]: https://www.risczero.com/
 [ethers]: https://docs.rs/ethers/latest/ethers/
+[Cargo]: https://doc.rust-lang.org/cargo/
 <!--
 TODO
 * Use links to public Bonsai materials.

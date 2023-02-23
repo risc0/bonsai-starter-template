@@ -44,12 +44,6 @@ cargo test
 .
 ├── Cargo.toml
 ├── README.md
-├── cli
-│   ├── Cargo.toml
-│   └── src
-│       └── bin
-│           ├── deploy.rs
-│           └── poke.rs
 ├── contracts
 │   ├── Cargo.toml
 │   ├── build.rs
@@ -100,31 +94,9 @@ The image ID will be included in the deployment of the smart contracts to refere
 
 Build configuration for the methods is included in `methods/build.rs` and tests of the guest itself are in `methods/src/lib.rs`.
 
-### CLI
-
-A starter CLI is provided to help deploy contracts to Ethereum and RISC Zero guest programs to Bonsai.
-Additionally the CLI includes example commands to interact with the smart contract via ethers.
-
-CLI commands are defined in their respective files in `cli/src/bin`.
-
 [Bonsai]: https://example.com
 [RISC Zero]: https://www.risczero.com/
 [ethers]: https://docs.rs/ethers/latest/ethers/
 [Cargo]: https://doc.rust-lang.org/cargo/
 [RISC Zero examples]: https://github.com/risc0/risc0/tree/main/examples
 [RISC-V]: https://www.risczero.com/docs/reference-docs/about-risc-v
-
-<!--
-TODO
-* Use links to public Bonsai materials.
-* Ensure Docker images gets open-sourced.
-* Include a docker-compose.yml file to run Bonsai local.
-* Get the Bonsai contracts open-sourced and import IBonsaiProxy from them.
-* Move test utils into a Bonsai SDK.
-* Build a cli that can:
-    * Deploy the contract to Ethereum and ELF to Bonsai.
-    * Poke the HelloBonsai contract to prove its working.
-* Ensure that any NPM dependencies (e.g. ganache) are managed in a sane way.
-* Add solhint configurations.
-* Add example tests for non-happy-path runs.
--->

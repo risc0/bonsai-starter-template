@@ -1,21 +1,35 @@
 // Copyright 2023 RISC Zero, Inc.
-// SPDX-License-Identifier: UNLICENSED
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 pragma solidity ^0.8.17;
 
 import "../IBonsaiProxy.sol";
 
 contract MockBonsaiProxy is IBonsaiProxy {
-    event SubmitRequest(bytes32 image_id, bytes calldata input, address callback_contract);
+    event SubmitRequest(bytes32 indexed image_id, bytes input, address callback_address, bytes4 callback_selector);
 
     function submit_request(
         bytes32 image_id,
         bytes calldata input,
-        address callback_contract
+        address callback_address,
+        bytes4 callback_selector
     ) external {
-        emit SubmitRequest(image_id, input, callback_contract);
+        emit SubmitRequest(image_id, input, callback_address, callback_selector);
     }
 
-    function send_callback(function callback_function, bytes32 image_id, bytes calldata journal) {
-        callback_function(image_id, journal);
+    function send_callback(address callback_address, bytes4 callback_selector, bytes32 image_id, bytes calldata journal) external {
+        (bool success,) = callback_address.call(abi.encodeWithSelector(callback_selector, image_id, journal));
+        require(success, "Bonsai callback reverted");
     }
 }

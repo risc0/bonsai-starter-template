@@ -34,7 +34,7 @@ fn fibonacci(n: U256) -> U256 {
 }
 
 pub fn main() {
-    // Decode input pass in from the Bonsai bridge.
+    // Decode input passed from the application contract by the Bonsai bridge.
     let input = ethabi::decode_whole(&[ParamType::Uint(256)], &env::read::<Vec<u8>>()).unwrap();
     let n: U256 = input[0].clone().into_uint().unwrap();
 

@@ -13,7 +13,6 @@
 // limitations under the License.
 
 //! Tests for the HelloBonsai contract using a mock for the Bonsai proxy contract.
-//! TODO(victor) Fill in this file.
 
 pub mod utils;
 

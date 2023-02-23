@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Generated create containing the image ID and ELF binary of the build guest.
+
 include!(concat!(env!("OUT_DIR"), "/methods.rs"));
 
 #[cfg(test)]
@@ -38,6 +40,7 @@ mod tests {
         )]))?);
 
         let receipt = prover.run()?;
+
         assert_eq!(
             &receipt.journal,
             &ethabi::encode(&[Token::Uint(U256::from(10)), Token::Uint(U256::from(89))])

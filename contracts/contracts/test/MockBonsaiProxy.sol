@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 pragma solidity ^0.8.17;
 
@@ -28,6 +30,7 @@ contract MockBonsaiProxy is IBonsaiProxy {
         emit SubmitRequest(image_id, input, callback_address, callback_selector);
     }
 
+    // Function called by the mock Bonsai service to send a callback to the application contract.
     function send_callback(address callback_address, bytes4 callback_selector, bytes32 image_id, bytes calldata journal) external {
         (bool success,) = callback_address.call(abi.encodeWithSelector(callback_selector, image_id, journal));
         require(success, "Bonsai callback reverted");

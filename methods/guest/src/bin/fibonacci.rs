@@ -34,6 +34,10 @@ fn fibonacci(n: U256) -> U256 {
 }
 
 pub fn main() {
+    // TODO(victor): This is uglier than it needs to be because env::read_slice does not support
+    // reading the whole input and I do not want to demonstrate code that only works for fixed
+    // sized values. An alternative would be to read a length, then read that number of bytes, this
+    // will depend on what the real watcher wants to do.
     // Decode input passed from the application contract by the Bonsai bridge.
     let input = ethabi::decode_whole(&[ParamType::Uint(256)], &env::read::<Vec<u8>>()).unwrap();
     let n: U256 = input[0].clone().into_uint().unwrap();

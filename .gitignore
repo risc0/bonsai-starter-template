@@ -1,11 +1,13 @@
-Cargo.lock
+# Editor files
+.idea
+.vscode
 **/*.rs.bk
 .DS_Store
 *~
 *.swp
 *.swo
-.idea
-.vscode
+
+# Build artifacts
 target/
 tmp/
 node_modules/

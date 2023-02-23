@@ -52,7 +52,12 @@ contract HelloBonsai {
     ///      trigger the Bonsai network to run the specified RISC Zero guest program with the given
     ///      input and asynchronously return the verified results via the callback below.
     function calculate_fibonacci(uint256 n) external {
-        bonsai_proxy.submit_request(image_id, abi.encode(n), address(this), this.calculate_fibonacci_callback.selector);
+        bonsai_proxy.submit_request(
+            image_id,
+            abi.encode(n),
+            address(this),
+            this.calculate_fibonacci_callback.selector
+        );
     }
 
     /// @notice Callback function to be called by the Bonsai proxy when the result is ready.
@@ -64,7 +69,10 @@ contract HelloBonsai {
         bytes calldata journal
     ) external {
         // Require that caller is the trusted proxy contract and guest program.
-        require(msg.sender == address(bonsai_proxy), "calls must come from Bonsai");
+        require(
+            msg.sender == address(bonsai_proxy),
+            "calls must come from Bonsai"
+        );
         require(_image_id == image_id, "journal must be expected guest");
         (uint256 n, uint256 result) = abi.decode(journal, (uint256, uint256));
 

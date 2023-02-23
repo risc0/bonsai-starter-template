@@ -17,6 +17,7 @@
   "ignore": [
     "target/",
     "tmp/",
-    "node_modules/"
+    "node_modules/",
+    "contracts/artifacts/"
   ]
 }

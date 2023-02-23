@@ -16,7 +16,7 @@
 
 pragma solidity ^0.8.17;
 
-import "../IBonsaiProxy.sol";
+import {IBonsaiProxy} from "../IBonsaiProxy.sol";
 
 contract MockBonsaiProxy is IBonsaiProxy {
     event SubmitRequest(bytes32 indexed image_id, bytes input, address callback_address, bytes4 callback_selector);
@@ -32,6 +32,7 @@ contract MockBonsaiProxy is IBonsaiProxy {
 
     // Function called by the mock Bonsai service to send a callback to the application contract.
     function send_callback(address callback_address, bytes4 callback_selector, bytes32 image_id, bytes calldata journal) external {
+        // solhint-disable-next-line avoid-low-level-calls
         (bool success,) = callback_address.call(abi.encodeWithSelector(callback_selector, image_id, journal));
         require(success, "Bonsai callback reverted");
     }

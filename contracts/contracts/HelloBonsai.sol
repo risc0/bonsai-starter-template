@@ -16,7 +16,7 @@
 
 pragma solidity ^0.8.17;
 
-import "./IBonsaiProxy.sol";
+import {IBonsaiProxy} from "./IBonsaiProxy.sol";
 
 /// @title A starter application using Bonsai through the on-chain proxy.
 /// @dev This contract demonstrates one pattern for offloading the computation of an expensive
@@ -43,20 +43,20 @@ contract HelloBonsai {
     ///      Only precomputed results can be returned. Call calculate_fibonacci(n) to precompute.
     function fibonacci(uint256 n) external view returns (uint256) {
         uint256 result = fibonnaci_cache[n];
-        require(result != 0);
+        require(result != 0, "value not available in cache");
         return result;
     }
 
     /// @notice Sends a request to Bonsai to have have the nth Fibonacci number calculated.
     /// @dev This function sends the request to Bonsai through the on-chain proxy. The request will
     ///      trigger the Bonsai network to run the specified RISC Zero guest program with the given
-    ///      input and asynchonrously return the verified results via the callback below.
+    ///      input and asynchronously return the verified results via the callback below.
     function calculate_fibonacci(uint256 n) external {
         bonsai_proxy.submit_request(image_id, abi.encode(n), address(this), this.calculate_fibonacci_callback.selector);
     }
 
     /// @notice Callback function to be called by the Bonsai proxy when the result is ready.
-    /// @param _image_id The verified image ID for the RISC Zero guest that prodiced the journal.
+    /// @param _image_id The verified image ID for the RISC Zero guest that produced the journal.
     ///        It must be checked to match the specific image ID of the associated RISC Zero guest.
     /// @param journal Data committed by the guest program with the results and important context.
     function calculate_fibonacci_callback(
@@ -64,8 +64,8 @@ contract HelloBonsai {
         bytes calldata journal
     ) external {
         // Require that caller is the trusted proxy contract and guest program.
-        require(msg.sender == address(bonsai_proxy));
-        require(_image_id == image_id);
+        require(msg.sender == address(bonsai_proxy), "calls must come from Bonsai");
+        require(_image_id == image_id, "journal must be expected guest");
         (uint256 n, uint256 result) = abi.decode(journal, (uint256, uint256));
 
         emit CalculateFibonacciCallback(n, result);

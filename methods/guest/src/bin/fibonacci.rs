@@ -27,10 +27,13 @@ pub fn main() {
     // reading the whole input and I do not want to demonstrate code that only works for fixed
     // sized values. An alternative would be to read a length, then read that number of bytes, this
     // will depend on what the real watcher wants to do.
+    // Decode input pass in from the Bonsai bridge.
     let input = ethabi::decode_whole(&[ParamType::Uint(256)], &env::read::<Vec<u8>>()).unwrap();
     let n: U256 = input[0].clone().into_uint().unwrap();
-    env::commit_slice(&ethabi::encode(&[
-        Token::Uint(n),
-        Token::Uint(fibonacci(n)),
-    ]));
+
+    // Run the computation.
+    let result = fibonacci(n);
+
+    // Commit the journal that will be decoded in the application contract.
+    env::commit_slice(&ethabi::encode(&[Token::Uint(n), Token::Uint(result)]));
 }

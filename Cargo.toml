@@ -2,7 +2,6 @@
 members = [
     "contracts",
     "methods",
-    "cli",
 ]
 
 [workspace.dependencies]

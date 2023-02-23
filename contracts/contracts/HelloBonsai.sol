@@ -6,15 +6,17 @@ import "./IBonsaiProxy.sol";
 
 /// @title A starter application using Bonsai through the on-chain proxy.
 /// @dev This contract demonstrates one pattern for offloading the computation of an expensive
-//       or difficult to implement function onto Bonsai.
+//       or difficult to implement function to a RISC Zero guest running on Bonsai.
 contract HelloBonsai {
-    // Address of the Bonsai proxy contract on the current chain.
+    // Address of the Bonsai proxy contract.
     IBonsaiProxy public immutable bonsai_proxy;
     // Image ID of the associated RISC Zero guest program.
     bytes32 public immutable image_id;
 
     // Cache of the results calculated by our guest program in Bonsai.
     mapping(uint256 => uint256) public fibonnaci_cache;
+
+    event CalculateFibonacciCallback(uint256 indexed n, uint256 result);
 
     // Initialize the contract, binding it to a specified Bonsai proxy and RISC Zero image.
     constructor(IBonsaiProxy _bonsai_proxy, bytes32 _image_id) {
@@ -44,9 +46,13 @@ contract HelloBonsai {
         bytes32 _image_id,
         bytes calldata journal
     ) external {
+        // Require that caller is the trusted proxy contract and guest program.
+        // After security checks, the output is verified to come from the guest. Decode the journal.
         require(msg.sender == address(bonsai_proxy));
         require(_image_id == image_id);
         (uint256 n, uint256 result) = abi.decode(journal, (uint256, uint256));
+
+        emit CalculateFibonacciCallback(n, result);
         fibonnaci_cache[n] = result;
     }
 }

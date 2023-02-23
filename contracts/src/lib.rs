@@ -4,7 +4,7 @@
 //! Rust interfaces for deploying and interfacing with HelloBonsai.
 //! TODO(victor): Fill in this file
 
-use ethers::{prelude::{abigen}};
+use ethers::prelude::abigen;
 
 abigen!(HelloBonsai, "artifacts/HelloBonsai.sol/HelloBonsai.json");
 

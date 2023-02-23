@@ -61,7 +61,9 @@ cargo test
 │   ├── src
 │   │   └── lib.rs
 │   └── tests
-│       └── contract_tests.rs
+│       └── contract_tests/
+│           ├── main.rs
+│           └── utils.rs
 └── methods
     ├── Cargo.toml
     ├── build.rs
@@ -118,12 +120,11 @@ TODO
 * Ensure Docker images gets open-sourced.
 * Include a docker-compose.yml file to run Bonsai local.
 * Get the Bonsai contracts open-sourced and import IBonsaiProxy from them.
-* Folks need to install ganache via `npm install -g ganache` to run tests.
+* Move test utils into a Bonsai SDK.
 * Build a cli that can:
     * Deploy the contract to Ethereum and ELF to Bonsai.
     * Poke the HelloBonsai contract to prove its working.
 * Ensure that any NPM dependencies (e.g. ganache) are managed in a sane way.
 * Add solhint configurations.
 * Add example tests for non-happy-path runs.
-* Separate out application test and mock code from contract tests.
 -->

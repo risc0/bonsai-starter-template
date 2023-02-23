@@ -13,3 +13,6 @@ tmp/
 node_modules/
 contracts/artifacts
 contracts/cache
+
+# Logs
+yarn-error.log

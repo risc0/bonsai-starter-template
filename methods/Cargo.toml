@@ -9,7 +9,7 @@ risc0-build = { workspace = true }
 [dev-dependencies]
 risc0-zkp = { workspace = true }
 risc0-zkvm = { workspace = true }
-ethabi = { version = "18.0", default-features = false, features = ["serde"] }
+ethabi = { version = "18.0", default-features = false }
 
 [package.metadata.risc0]
 methods = ["guest"]

@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Utilities for writing tests for Bonsai applications. Supports testing of applications that use
+//! the Bonsai proxy to make requests for processing by a RISC Zero guest by providing utilities to
+//! run a mock of the Bonsai network.
+
 use std::collections::HashMap;
 use std::error::Error;
 use std::future::Future;

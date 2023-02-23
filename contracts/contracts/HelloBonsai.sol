@@ -11,10 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 pragma solidity ^0.8.17;
 
-import "./IBonsaiProxy.sol";
+import {IBonsaiProxy} from "./IBonsaiProxy.sol";
 
 /// @title A starter application using Bonsai through the on-chain proxy.
 /// @dev This contract demonstrates one pattern for offloading the computation of an expensive
@@ -30,7 +32,7 @@ contract HelloBonsai {
 
     event CalculateFibonacciCallback(uint256 indexed n, uint256 result);
 
-    // Initialize the contract, binding it to a specified Bonsai proxy and RISC Zero image.
+    // Initialize the contract, binding it to a specified Bonsai proxy and RISC Zero guest image.
     constructor(IBonsaiProxy _bonsai_proxy, bytes32 _image_id) {
         bonsai_proxy = _bonsai_proxy;
         image_id = _image_id;
@@ -41,27 +43,37 @@ contract HelloBonsai {
     ///      Only precomputed results can be returned. Call calculate_fibonacci(n) to precompute.
     function fibonacci(uint256 n) external view returns (uint256) {
         uint256 result = fibonnaci_cache[n];
-        require(result != 0);
+        require(result != 0, "value not available in cache");
         return result;
     }
 
     /// @notice Sends a request to Bonsai to have have the nth Fibonacci number calculated.
     /// @dev This function sends the request to Bonsai through the on-chain proxy. The request will
-    ///      trigger the Bonsai network to run the specified RISC Zero guest image with the given
-    ///      input and asynchonrously return the verified results to use via the callback below.
+    ///      trigger the Bonsai network to run the specified RISC Zero guest program with the given
+    ///      input and asynchronously return the verified results via the callback below.
     function calculate_fibonacci(uint256 n) external {
-        bonsai_proxy.submit_request(image_id, abi.encode(n), address(this), this.calculate_fibonacci_callback.selector);
+        bonsai_proxy.submit_request(
+            image_id,
+            abi.encode(n),
+            address(this),
+            this.calculate_fibonacci_callback.selector
+        );
     }
 
     /// @notice Callback function to be called by the Bonsai proxy when the result is ready.
+    /// @param _image_id The verified image ID for the RISC Zero guest that produced the journal.
+    ///        It must be checked to match the specific image ID of the associated RISC Zero guest.
+    /// @param journal Data committed by the guest program with the results and important context.
     function calculate_fibonacci_callback(
         bytes32 _image_id,
         bytes calldata journal
     ) external {
         // Require that caller is the trusted proxy contract and guest program.
-        // After security checks, the output is verified to come from the guest. Decode the journal.
-        require(msg.sender == address(bonsai_proxy));
-        require(_image_id == image_id);
+        require(
+            msg.sender == address(bonsai_proxy),
+            "calls must come from Bonsai"
+        );
+        require(_image_id == image_id, "journal must be expected guest");
         (uint256 n, uint256 result) = abi.decode(journal, (uint256, uint256));
 
         emit CalculateFibonacciCallback(n, result);

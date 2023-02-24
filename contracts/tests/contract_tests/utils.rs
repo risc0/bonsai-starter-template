@@ -14,7 +14,7 @@
 
 //! Utilities for writing tests for Bonsai applications. Supports testing of applications that use
 //! the Bonsai proxy to make requests for processing by a RISC Zero guest by providing utilities to
-//! run a mock of the Bonsai network.
+//! run a mock of Bonsai.
 
 use std::collections::HashMap;
 use std::error::Error;
@@ -37,13 +37,13 @@ abigen!(
 pub type Client = Arc<SignerMiddleware<Provider<Ws>, Wallet<SigningKey>>>;
 
 pub async fn get_ganache_client() -> Result<(GanacheInstance, Client), Box<dyn Error>> {
-    // Launch ganache instance
+    // Launch Ganache instance
     let ganache = Ganache::new().spawn();
 
     // Instantiate wallet
     let wallet: LocalWallet = ganache.keys()[0].clone().into();
 
-    // Connect to network
+    // Connect to Ganache
     let provider = Provider::<Ws>::connect(ganache.ws_endpoint()).await?;
 
     // Instantiate client as wallet on network
@@ -133,6 +133,7 @@ where
     // Deploy the Bonsai mock contract and start a background worker.
     let mut bonsai_mock = BonsaiMock::spawn(client.clone(), registry).await?;
 
+    // Run the test inside `tokio::select` such that it will exit if the mock exits.
     tokio::select! {
         result = test(client.clone(), bonsai_mock.contract_address) => result,
         error = &mut bonsai_mock.task_handle => Err(format!("Bonsai mock died with result: {:?}", error).into()),

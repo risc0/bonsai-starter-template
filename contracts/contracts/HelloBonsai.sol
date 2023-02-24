@@ -14,14 +14,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.16;
 
 import {IBonsaiProxy} from "./IBonsaiProxy.sol";
+import {IBonsaiApp} from "./IBonsaiApp.sol";
 
 /// @title A starter application using Bonsai through the on-chain proxy.
 /// @dev This contract demonstrates one pattern for offloading the computation of an expensive
 //       or difficult to implement function to a RISC Zero guest running on Bonsai.
-contract HelloBonsai {
+contract HelloBonsai is IBonsaiApp {
     // Address of the Bonsai proxy contract.
     IBonsaiProxy public immutable bonsai_proxy;
     // Image ID of the associated RISC Zero guest program.
@@ -52,22 +53,14 @@ contract HelloBonsai {
     ///      trigger the Bonsai network to run the specified RISC Zero guest program with the given
     ///      input and asynchronously return the verified results via the callback below.
     function calculate_fibonacci(uint256 n) external {
-        bonsai_proxy.submit_request(
-            image_id,
-            abi.encode(n),
-            address(this),
-            this.calculate_fibonacci_callback.selector
-        );
+        bonsai_proxy.submit_request(image_id, abi.encode(n), address(this));
     }
 
     /// @notice Callback function to be called by the Bonsai proxy when the result is ready.
     /// @param _image_id The verified image ID for the RISC Zero guest that produced the journal.
     ///        It must be checked to match the specific image ID of the associated RISC Zero guest.
     /// @param journal Data committed by the guest program with the results and important context.
-    function calculate_fibonacci_callback(
-        bytes32 _image_id,
-        bytes calldata journal
-    ) external {
+    function callback(bytes32 _image_id, bytes calldata journal) external {
         // Require that caller is the trusted proxy contract and guest program.
         require(
             msg.sender == address(bonsai_proxy),

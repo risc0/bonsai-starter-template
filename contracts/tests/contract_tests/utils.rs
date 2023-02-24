@@ -102,7 +102,6 @@ impl BonsaiMock {
                 mock_bonsai_proxy
                     .send_callback(
                         submit_request_log.callback_address,
-                        submit_request_log.callback_selector,
                         submit_request_log.image_id.into(),
                         receipt.journal.into(),
                     )

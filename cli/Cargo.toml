@@ -4,7 +4,10 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-clap = { version = "4.0", features = ["derive"] }
+clap = { version = "4.0", features = ["derive", "env"] }
+hello-bonsai-methods = { workspace = true }
+hex = "0.4"
+reqwest = "0.11"
 risc0-zkp = { workspace = true }
 risc0-zkvm = { workspace = true }
-hello-bonsai-methods = { workspace = true }
+tokio = "1.24"

@@ -50,6 +50,7 @@ cargo test
 │   ├── contracts
 │   │   ├── HelloBonsai.sol
 │   │   ├── IBonsaiProxy.sol
+│   │   ├── IBonsaiApp.sol
 │   │   └── test
 │   │       └── MockBonsaiProxy.sol
 │   ├── src

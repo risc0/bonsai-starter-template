@@ -22,7 +22,7 @@ mod tests {
 
     use ethabi::ethereum_types::U256;
     use ethabi::Token;
-    use risc0_zkvm::{serde, Prover, ProverOpts};
+    use risc0_zkvm::{Prover, ProverOpts};
 
     use super::{FIBONACCI_ID, FIBONACCI_PATH};
 
@@ -35,9 +35,7 @@ mod tests {
             ProverOpts::default().with_skip_seal(true),
         )?;
 
-        prover.add_input_u32_slice(&serde::to_vec(&ethabi::encode(&[Token::Uint(
-            U256::from(10),
-        )]))?);
+        prover.add_input_u8_slice(&ethabi::encode(&[Token::Uint(U256::from(10))]));
 
         let receipt = prover.run()?;
 

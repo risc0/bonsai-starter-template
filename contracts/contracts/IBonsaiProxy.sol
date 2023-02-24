@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.16;
 
 interface IBonsaiProxy {
     /// @notice Submit a verifiable computation request to the Bonsai network.
@@ -24,11 +24,9 @@ interface IBonsaiProxy {
     ///         The associated ELF binary should be uploaded to the Bonsai network.
     /// @param input Data to be passed to the guest, accessible by calling `env::read`.
     /// @param callback_address Contract address where the execution result callback is requested.
-    /// @param callback_selector 4-byte function selector for the callback.
     function submit_request(
         bytes32 image_id,
         bytes calldata input,
-        address callback_address,
-        bytes4 callback_selector
+        address callback_address
     ) external;
 }

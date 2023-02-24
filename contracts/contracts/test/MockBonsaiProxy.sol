@@ -14,43 +14,32 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.16;
 
 import {IBonsaiProxy} from "../IBonsaiProxy.sol";
+import {IBonsaiApp} from "../IBonsaiApp.sol";
 
 contract MockBonsaiProxy is IBonsaiProxy {
     event SubmitRequest(
         bytes32 indexed image_id,
         bytes input,
-        address callback_address,
-        bytes4 callback_selector
+        address callback_address
     );
 
     function submit_request(
         bytes32 image_id,
         bytes calldata input,
-        address callback_address,
-        bytes4 callback_selector
+        address callback_address
     ) external {
-        emit SubmitRequest(
-            image_id,
-            input,
-            callback_address,
-            callback_selector
-        );
+        emit SubmitRequest(image_id, input, callback_address);
     }
 
     // Function called by the mock Bonsai service to send a callback to the application contract.
     function send_callback(
         address callback_address,
-        bytes4 callback_selector,
         bytes32 image_id,
         bytes calldata journal
     ) external {
-        // solhint-disable-next-line avoid-low-level-calls
-        (bool success, ) = callback_address.call(
-            abi.encodeWithSelector(callback_selector, image_id, journal)
-        );
-        require(success, "Bonsai callback reverted");
+        IBonsaiApp(callback_address).callback(image_id, journal);
     }
 }

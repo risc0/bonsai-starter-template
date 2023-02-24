@@ -95,7 +95,7 @@ The image ID will be included in the deployment of the smart contracts to refere
 
 Build configuration for the methods is included in `methods/build.rs` and tests of the guest itself are in `methods/src/lib.rs`.
 
-[Bonsai]: https://example.com
+[Bonsai]: https://dev.bonsai.xyz/
 [RISC Zero]: https://www.risczero.com/
 [ethers]: https://docs.rs/ethers/latest/ethers/
 [Cargo]: https://doc.rust-lang.org/cargo/

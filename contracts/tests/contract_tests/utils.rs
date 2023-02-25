@@ -93,9 +93,7 @@ impl BonsaiMock {
                         ProverOpts::default().with_skip_seal(true),
                     )
                     .expect("failed to create prover");
-                    prover.add_input_u8_slice(
-                        submit_request_log.input.deref(),
-                    );
+                    prover.add_input_u8_slice(submit_request_log.input.deref());
                     prover.run().expect("failed to run guest")
                 };
 

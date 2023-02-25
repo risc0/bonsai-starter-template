@@ -48,7 +48,8 @@ struct Args {
     bonsai_api_key: String,
 
     /// Ethereum private key to use for sending transactions.
-    /// TODO(victor) Provide other ways to handle this.
+    // NOTE: Provided as an example and for testing. Integrate your preferred key management.
+    // https://docs.rs/ethers/latest/ethers/signers/index.html
     #[clap(env, long)]
     ethereum_private_key: String,
 }

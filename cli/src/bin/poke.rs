@@ -29,6 +29,9 @@ use hello_bonsai_contracts::HelloBonsai;
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
 struct Args {
+    /// Value of n to use as the input to the Fibonacci calculation.
+    n: u32,
+
     /// JSON RPC URL for an Ethereum node that will serve call and transaction requests.
     /// Currently only HTTP(S) URLs are supported.
     #[clap(short = 'e', long, env, value_hint = clap::ValueHint::Url)]
@@ -39,7 +42,8 @@ struct Args {
     hello_bonsai_contract_address: Address,
 
     /// Ethereum private key to use for sending transactions.
-    /// TODO(victor) Provide other ways to handle this.
+    // NOTE: Provided as an example and for testing. Integrate your preferred key management.
+    // https://docs.rs/ethers/latest/ethers/signers/index.html
     #[clap(env, long)]
     ethereum_private_key: String,
 }
@@ -71,7 +75,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // Call a function which offloads work to Bonsai.
     println!("Sending transaction for HelloBonsai.calculate_fibonacci...");
     let receipt = hello_bonsai
-        .calculate_fibonacci(U256::from(10))
+        .calculate_fibonacci(U256::from(args.n))
         .send()
         .await?
         .confirmations(1)
@@ -85,8 +89,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("    Log: {:?}", callback_log);
 
     // Check that the expected changes took place on the contract.
-    println!("Calling HelloBonsai.fibonacci(10)");
-    let result: U256 = hello_bonsai.fibonacci(U256::from(10)).call().await?;
+    println!("Calling HelloBonsai.fibonacci({})", args.n);
+    let result: U256 = hello_bonsai.fibonacci(U256::from(args.n)).call().await?;
     println!(" Result: {}", result);
 
     Ok(())

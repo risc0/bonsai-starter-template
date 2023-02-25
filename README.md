@@ -108,6 +108,8 @@ Additionally the CLI includes example commands to interact with the smart contra
 
 CLI commands are defined in their respective files in `cli/src/bin`.
 
+**To get access to Bonsai, sign up for the [waitlist].** 
+
 #### Deploy
 
 The `deploy` command shows how to deploy your application to Bonsai and to an Ethereum chain.
@@ -156,3 +158,4 @@ Options:
 [Cargo]: https://doc.rust-lang.org/cargo/
 [RISC Zero examples]: https://github.com/risc0/risc0/tree/main/examples
 [RISC-V]: https://www.risczero.com/docs/reference-docs/about-risc-v
+[waitlist]: https://fmree464va4.typeform.com/to/t6hZD54Z

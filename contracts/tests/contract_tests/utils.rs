@@ -25,7 +25,7 @@ use std::sync::Arc;
 use ethers::core::k256::ecdsa::SigningKey;
 use ethers::prelude::*;
 use ethers::utils::{Ganache, GanacheInstance};
-use risc0_zkvm::{serde, Prover, ProverOpts};
+use risc0_zkvm::{Prover, ProverOpts};
 use tokio::sync::oneshot;
 use tokio::task::JoinHandle;
 
@@ -93,8 +93,8 @@ impl BonsaiMock {
                         ProverOpts::default().with_skip_seal(true),
                     )
                     .expect("failed to create prover");
-                    prover.add_input_u32_slice(
-                        &serde::to_vec(submit_request_log.input.deref()).unwrap(),
+                    prover.add_input_u8_slice(
+                        submit_request_log.input.deref(),
                     );
                     prover.run().expect("failed to run guest")
                 };

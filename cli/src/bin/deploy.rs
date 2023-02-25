@@ -78,8 +78,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let args = Args::parse();
 
     // Create a wallet and connection to the Ethereum node.
-    let wallet =
-        LocalWallet::from_str(args.ethereum_private_key.trim_start_matches("0x"))?;
+    let wallet = LocalWallet::from_str(args.ethereum_private_key.trim_start_matches("0x"))?;
     let provider = Provider::<Http>::try_from(&args.ethereum_node_url)?;
     let chain_id = provider.get_chainid().await?;
     println!("Loaded private key for Ethereum wallet");

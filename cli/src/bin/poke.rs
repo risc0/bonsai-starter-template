@@ -18,12 +18,9 @@ use std::sync::Arc;
 
 use clap::Parser;
 use ethers::middleware::SignerMiddleware;
-use ethers::signers::Signer;
-use ethers::providers::{Http, Middleware, Provider};
-use ethers::signers::{LocalWallet};
-use ethers::types::{Address};
-use ethers::types::U256;
-use ethers::providers::StreamExt;
+use ethers::providers::{Http, Middleware, Provider, StreamExt};
+use ethers::signers::{LocalWallet, Signer};
+use ethers::types::{Address, U256};
 use hello_bonsai_contracts::HelloBonsai;
 
 #[derive(Parser, Debug)]
@@ -53,8 +50,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let args = Args::parse();
 
     // Create a wallet and connection to the Ethereum node.
-    let wallet =
-        LocalWallet::from_str(args.ethereum_private_key.trim_start_matches("0x"))?;
+    let wallet = LocalWallet::from_str(args.ethereum_private_key.trim_start_matches("0x"))?;
     let provider = Provider::<Http>::try_from(&args.ethereum_node_url)?;
     let chain_id = provider.get_chainid().await?;
     println!("Loaded private key for Ethereum wallet");
@@ -81,7 +77,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .confirmations(1)
         .await?;
     println!("Transaction processed");
-    println!("    Hash: {:?}", receipt.ok_or("no receipt from transaction")?.transaction_hash);
+    println!(
+        "    Hash: {:?}",
+        receipt
+            .ok_or("no receipt from transaction")?
+            .transaction_hash
+    );
 
     // Wait for the callback to come from Bonsai.
     println!("Waiting for callback event");

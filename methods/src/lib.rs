@@ -35,7 +35,9 @@ mod tests {
             ProverOpts::default().with_skip_seal(true),
         )?;
 
-        prover.add_input_u8_slice(&ethabi::encode(&[Token::Uint(U256::from(10))]));
+        let input = ethabi::encode(&[Token::Uint(U256::from(10))]);
+        prover.add_input_u32_slice(&[input.len() as u32]);
+        prover.add_input_u8_slice(&input);
 
         let receipt = prover.run()?;
 

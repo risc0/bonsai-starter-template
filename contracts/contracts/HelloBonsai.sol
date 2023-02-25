@@ -49,9 +49,9 @@ contract HelloBonsai is IBonsaiApp {
     }
 
     /// @notice Sends a request to Bonsai to have have the nth Fibonacci number calculated.
-    /// @dev This function sends the request to Bonsai through the on-chain proxy. The request will
-    ///      trigger the Bonsai network to run the specified RISC Zero guest program with the given
-    ///      input and asynchronously return the verified results via the callback below.
+    /// @dev This function sends the request to Bonsai through the on-chain proxy.
+    ///      The request will trigger Bonsai to run the specified RISC Zero guest program with
+    ///      the given input and asynchronously return the verified results via the callback below.
     function calculate_fibonacci(uint256 n) external {
         bonsai_proxy.submit_request(image_id, abi.encode(n), address(this));
     }

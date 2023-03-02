@@ -92,7 +92,7 @@ Tests are defined in `contracts/tests`.
 
 [RISC Zero] guest programs are defined in the `methods` directory.
 This is where you will define one or more guest programs to act as a coprocessor to your on-chain logic.
-More examples of what you can do in the guest can be found in the [RISC Zero examples].
+More example of what you can do in the guest can be found in the [RISC Zero examples].
 
 Code in the `methods/guest` directory will be compiled into one or more [RISC-V] binaries.
 Each will have a corresponding image ID, which is a hash identifying the program.

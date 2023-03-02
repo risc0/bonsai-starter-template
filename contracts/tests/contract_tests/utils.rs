@@ -25,6 +25,7 @@ use std::sync::Arc;
 use ethers::core::k256::ecdsa::SigningKey;
 use ethers::prelude::*;
 use ethers::utils::{Ganache, GanacheInstance};
+use risc0_zkvm::sha::DIGEST_BYTES;
 use risc0_zkvm::{Prover, ProverOpts};
 use tokio::sync::oneshot;
 use tokio::task::JoinHandle;
@@ -61,9 +62,9 @@ pub struct BonsaiMock {
 }
 
 impl BonsaiMock {
-    pub async fn spawn(
+    pub async fn spawn<Bytes: AsRef<[u8]> + Send + 'static>(
         client: Client,
-        registry: HashMap<[u8; 32], &'static [u8]>,
+        registry: HashMap<[u8; DIGEST_BYTES], Bytes>,
     ) -> Result<Self, Box<dyn Error>> {
         let (tx, rx) = oneshot::channel();
 
@@ -93,9 +94,7 @@ impl BonsaiMock {
                         ProverOpts::default().with_skip_seal(true),
                     )
                     .expect("failed to create prover");
-                    let input: &[u8] = submit_request_log.input.deref();
-                    prover.add_input_u32_slice(&[input.len() as u32]);
-                    prover.add_input_u8_slice(input);
+                    prover.add_input_u8_slice(submit_request_log.input.deref());
                     prover.run().expect("failed to run guest")
                 };
 
@@ -120,12 +119,13 @@ impl BonsaiMock {
     }
 }
 
-pub async fn bonsai_test<F>(
-    registry: HashMap<[u8; 32], &'static [u8]>,
+pub async fn bonsai_test<F, Bytes>(
+    registry: HashMap<[u8; DIGEST_BYTES], Bytes>,
     test: impl FnOnce(Client, Address) -> F,
 ) -> Result<(), Box<dyn Error>>
 where
     F: Future<Output = Result<(), Box<dyn Error>>>,
+    Bytes: AsRef<[u8]> + Send + 'static,
 {
     // Instantiate client as wallet on network
     let (_ganache, client) = get_ganache_client().await?;
